@@ -1,20 +1,12 @@
 
 var defer = require('pull-defer')
 
-module.exports = function (connect) {
+module.exports = function (connect, factor, max) {
+
+  factor = factor || 100
+  max = max || 10e3
 
   var errors = 0, waiting = []
-
-//  ;(function next () {
-//    var attempt = Date.now()
-//    console.log('connecting...')
-//    connect(function (err) {
-//      console.log('reconnecting...')
-//      if(Date.now() - attempt < 3e3) errors ++
-//      else                           errors = 0
-//      setTimeout(next, Math.min(Math.pow(2, errors)*1e3, 15e3))
-//    })
-//  })()
 
   var state, attempt = Date.now() //first attempt started below.
 
@@ -24,7 +16,7 @@ module.exports = function (connect) {
       _state = false
       errors ++
       setTimeout(function () { connect(isConnected) },
-        Math.min(Math.pow(2, errors)*1e3, 15e3)
+        Math.min(Math.pow(2, errors)*factor, max)
       )
     }
     else {
@@ -76,4 +68,5 @@ module.exports = function (connect) {
 
   return isConnected
 }
+
 
