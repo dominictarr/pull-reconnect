@@ -12,10 +12,13 @@ module.exports = function (connect, factor, max) {
 
   function isConnected (err) {
     //if the connection errored
-    if(err) {
+    if(err && err !== true) {
       _state = false
       errors ++
-      setTimeout(function () { connect(isConnected) },
+      setTimeout(function () {
+        try { connect(isConnected) }
+        catch (err) { console.log(err); isConnected(err) }
+      },
         Math.min(Math.pow(2, errors)*factor, max)
       )
     }
@@ -68,5 +71,7 @@ module.exports = function (connect, factor, max) {
 
   return isConnected
 }
+
+
 
 
