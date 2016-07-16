@@ -10,17 +10,17 @@ module.exports = function (connect, factor, max) {
 
   var state, attempt = Date.now() //first attempt started below.
 
+  function tryConnect () {
+    try { connect(isConnected) }
+    catch (err) { console.log(err); isConnected(err) }
+  }
+
   function isConnected (err) {
     //if the connection errored
     if(err && err !== true) {
       _state = false
       errors ++
-      setTimeout(function () {
-        try { connect(isConnected) }
-        catch (err) { console.log(err); isConnected(err) }
-      },
-        Math.min(Math.pow(2, errors)*factor, max)
-      )
+      setTimeout(tryConnect, Math.min(Math.pow(2, errors)*factor, max))
     }
     else {
       _state = true
@@ -67,10 +67,14 @@ module.exports = function (connect, factor, max) {
     }
   }
 
-  connect(isConnected)
+  tryConnect()
 
   return isConnected
 }
+
+
+
+
 
 
 
