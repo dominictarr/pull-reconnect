@@ -110,5 +110,31 @@ tape('delay sink', function (t) {
 
 })
 
+tape('delay duplex, sync', function (t) {
+  t.plan(2)
 
+  var ready = false
+  var r = Reconnect(function (isConnected) {
+    isConnected(ready = true)
+  })
+
+  var what = r.duplex(function (cb) {
+    return {
+      source: pull.values([1,2,3]),
+      sink: pull.collect(cb)
+    }
+  })
+
+  const duplex = what(function (err, ary) {
+    if(err) throw err
+    t.deepEqual(ary, [1,2,3])
+  })
+
+  pull(pull.values([1,2,3]), duplex)
+
+  pull(duplex, pull.collect(function (err, ary) {
+    if(err) throw err
+    t.deepEqual(ary, [1,2,3])
+  }))
+})
 
