@@ -67,6 +67,18 @@ module.exports = function (connect, factor, max) {
     }
   }
 
+  isConnected.duplex = function (fn) {
+    return function () {
+      var args = [].slice.call(arguments)
+      if(state) return fn.apply(null, args)
+      var duplex = defer.duplex()
+      waiting.push(function () {
+        duplex.resolve(fn.apply(null, args))
+      })
+      return duplex
+    }
+  }
+
   tryConnect()
 
   return isConnected
